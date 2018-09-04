@@ -29,6 +29,7 @@ import io.gravitee.gateway.standalone.node.GatewayNode;
 import io.gravitee.gateway.standalone.vertx.VertxReactorConfiguration;
 import io.gravitee.node.api.Node;
 import io.gravitee.node.vertx.spring.VertxConfiguration;
+import io.gravitee.plugin.alert.spring.AlertPluginConfiguration;
 import io.gravitee.plugin.core.spring.PluginConfiguration;
 import io.gravitee.plugin.policy.spring.PolicyPluginConfiguration;
 import io.gravitee.plugin.resource.spring.ResourcePluginConfiguration;
@@ -50,7 +51,8 @@ import org.springframework.context.annotation.Import;
         ResourcePluginConfiguration.class,
         ReporterConfiguration.class,
         ApiHandlerConfiguration.class,
-        DictionaryConfiguration.class
+        DictionaryConfiguration.class,
+        AlertPluginConfiguration.class
 })
 public class StandaloneConfiguration {
 
