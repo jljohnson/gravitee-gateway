@@ -47,6 +47,7 @@ import java.util.stream.Collectors;
 
 /**
  * @author David BRASSELY (david.brassely at graviteesource.com)
+ * @author Nicolas GERAUD (nicolas.geraud at graviteesource.com)
  * @author GraviteeSource Team
  */
 public class MonitoringService extends AbstractService {
@@ -69,6 +70,9 @@ public class MonitoringService extends AbstractService {
 
     @Value("${http.port:8082}")
     private String port;
+
+    @Value("${services.monitoring.storeSystemProperties:true}")
+    private boolean storeSystemProperties;
 
     @Autowired
     private Node node;
@@ -171,14 +175,14 @@ public class MonitoringService extends AbstractService {
         instanceInfo.setVersion(Version.RUNTIME_VERSION.toString());
 
         Optional<List<String>> shardingTags = gatewayConfiguration.shardingTags();
-        instanceInfo.setTags(shardingTags.isPresent() ? shardingTags.get() : null);
+        instanceInfo.setTags(shardingTags.orElse(null));
 
         instanceInfo.setPlugins(plugins());
-        instanceInfo.setSystemProperties(new HashMap<>((Map) System.getProperties()));
+        instanceInfo.setSystemProperties(getSystemProperties());
         instanceInfo.setPort(port);
 
         Optional<String> tenant = gatewayConfiguration.tenant();
-        instanceInfo.setTenant(tenant.isPresent() ? tenant.get() : null);
+        instanceInfo.setTenant(tenant.orElse(null));
 
         try {
             instanceInfo.setHostname(InetAddress.getLocalHost().getHostName());
@@ -188,6 +192,17 @@ public class MonitoringService extends AbstractService {
         }
 
         return instanceInfo;
+    }
+
+    private Map getSystemProperties() {
+        if (storeSystemProperties) {
+            return System.getProperties()
+                    .entrySet()
+                    .stream()
+                    .filter(entry -> !entry.getKey().toString().toUpperCase().startsWith("GRAVITEE"))
+                    .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+        }
+        return Collections.emptyMap();
     }
 
     public Set<Plugin> plugins() {
